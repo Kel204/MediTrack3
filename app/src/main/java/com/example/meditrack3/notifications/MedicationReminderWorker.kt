@@ -27,7 +27,7 @@ class MedicationReminderWorker(
         )
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentTitle("Medication Reminder")
-            .setContentText("Time to take $medicationName $dosage")
+            .setContentText("Time to take your medication $medicationName $dosage")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
