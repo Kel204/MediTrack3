@@ -10,6 +10,8 @@ import com.example.meditrack3.ui.screens.home.HomeScreen
 import com.example.meditrack3.ui.screens.medication.MedicationAddScreen
 import com.example.meditrack3.ui.screens.medication.MedicationScreen
 import com.example.meditrack3.ui.screens.insights.InsightsScreen
+import com.example.meditrack3.ui.screens.login.LoginScreen
+import com.example.meditrack3.ui.screens.login.SignupScreen
 
 @Composable
 fun BuildNavigationGraph() {
@@ -42,6 +44,12 @@ fun BuildNavigationGraph() {
 
             composable(Screen.Insights.route) {
                 InsightsScreen(navController)
+            }
+            composable(Screen.Login.route) {
+                LoginScreen(navController)
+            }
+            composable(Screen.Signup.route) {
+                SignupScreen(navController)
             }
 
             composable(Screen.MedicationEdit.route) { backStackEntry ->

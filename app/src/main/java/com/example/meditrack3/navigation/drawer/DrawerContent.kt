@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.meditrack3.auth.AuthManager
 import com.example.meditrack3.navigation.Screen
 import kotlinx.coroutines.launch
 
@@ -28,7 +29,7 @@ fun DrawerContent(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth(0.7f)
-            .background(Color(0xFFF7F9F7))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 20.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -55,6 +56,20 @@ fun DrawerContent(
         /* ───────── Navigation Section ───────── */
 
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+
+            DrawerItem(
+                title = "Log in",
+                icon = Icons.Filled.Login,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+
+            ) {
+                scope.launch { drawerState.close() }
+                AuthManager.isLoggedIn()
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(0)
+                }
+            }
 
             DrawerItem("Home", Icons.Filled.Home) {
                 navigateAndClose(navController, drawerState, scope, Screen.Home.route)
@@ -84,8 +99,9 @@ fun DrawerContent(
         DrawerItem(
             title = "Log out",
             icon = Icons.Filled.Logout,
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.error
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+
         ) {
             scope.launch { drawerState.close() }
             // Hook logout logic here if needed
@@ -99,8 +115,8 @@ fun DrawerContent(
 private fun DrawerItem(
     title: String,
     icon: ImageVector,
-    containerColor: Color = Color.White,
-    contentColor: Color = Color(0xFF6BAF92),
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
     Card(
@@ -127,7 +143,7 @@ private fun DrawerItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }

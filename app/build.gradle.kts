@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.devtools.ksp)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -67,6 +68,10 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
+
+    // ── FireBase ─────────────────────────────
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
 
     // ── JSON Parsing ─────────────────────────────
     implementation(libs.com.google.gson)

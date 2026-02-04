@@ -79,6 +79,12 @@ val onErrorDark = Color(0xFF690005)
 
 val errorContainerDark = Color(0xFF93000A)
 val onErrorContainerDark = Color(0xFFFFDAD6)
+val surfaceContainerLowestDark = Color(0xFF160D0F)
+val surfaceContainerLowDark = Color(0xFF1C1215)
+val surfaceContainerDark = Color(0xFF23181B)
+val surfaceContainerHighDark = Color(0xFF2A1E22)
+val surfaceContainerHighestDark = Color(0xFF322428)
+
 
 /* 🔑 DARK MODE WHITE-ISH CONTENT */
 val backgroundDark = Color(0xFF1A1113)

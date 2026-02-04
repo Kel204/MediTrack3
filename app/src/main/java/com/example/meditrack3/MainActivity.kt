@@ -1,17 +1,18 @@
 package com.example.meditrack3
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-
-import android.Manifest
-import android.os.Build
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import com.example.meditrack3.navigation.BuildNavigationGraph
 import com.example.meditrack3.ui.theme.MediTrack3Theme
 
@@ -45,4 +46,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
