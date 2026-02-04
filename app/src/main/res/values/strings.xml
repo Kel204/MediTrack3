@@ -1,0 +1,48 @@
+<resources>
+
+    <!-- App -->
+    <string name="app_name">MediTrack</string>
+
+    <!-- Accessibility / Navigation -->
+    <string name="nav_drawer_menu">Open navigation menu</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_medication">Medication</string>
+    <string name="nav_scan">Scan</string>
+    <string name="nav_insights">Insights</string>
+
+    <!-- Authentication -->
+    <string name="login_title">Login</string>
+    <string name="signup_title">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="login_button">Log In</string>
+    <string name="signup_button">Create Account</string>
+    <string name="no_account">Don’t have an account?</string>
+    <string name="have_account">Already have an account?</string>
+
+    <!-- Home -->
+    <string name="home_welcome">Welcome back</string>
+    <string name="home_next_dose">Next scheduled dose</string>
+
+    <!-- Medication -->
+    <string name="medication_title">My Medications</string>
+    <string name="add_medication">Add Medication</string>
+    <string name="medication_name">Medication Name</string>
+    <string name="medication_dosage">Dosage</string>
+    <string name="medication_frequency">Frequency</string>
+    <string name="medication_start_date">Start Date</string>
+    <string name="medication_notes">Notes</string>
+    <string name="save_medication">Save Medication</string>
+
+    <!-- Scan -->
+    <string name="scan_title">Scan Medication</string>
+    <string name="scan_instruction">Scan the barcode on your medication</string>
+
+    <!-- Insights -->
+    <string name="insights_title">Insights</string>
+    <string name="insights_adherence">Medication adherence overview</string>
+
+</resources>
