@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.meditrack3.data.datastore.DoseStatusStore
 import com.example.meditrack3.data.entity.Medication
 import com.example.meditrack3.data.repository.MedicationRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -16,6 +17,8 @@ class MedicationViewModel(application: Application) : AndroidViewModel(applicati
 
     private val repository = MedicationRepository(application)
 
+    /* ───────── Medication list ───────── */
+
     val medications: StateFlow<List<Medication>> =
         repository.getAllMedications()
             .stateIn(
@@ -24,40 +27,20 @@ class MedicationViewModel(application: Application) : AndroidViewModel(applicati
                 emptyList()
             )
 
-    /* ───────── Dose status persistence (HomeScreen) ───────── */
+    /* ───────── Selected medication (EDIT SCREEN) ───────── */
 
-    // key format: yyyy-MM-dd-medId-time
-    private val doseStatusMap = mutableStateMapOf<String, Boolean?>()
+    private val _selectedMedication = MutableStateFlow<Medication?>(null)
+    val selectedMedication: StateFlow<Medication?> = _selectedMedication
 
-    init {
-        // Load persisted dose status on app start
+    fun loadMedicationById(id: Int) {
         viewModelScope.launch {
-            val storedStatuses = DoseStatusStore.loadAll(getApplication())
-            storedStatuses.forEach { (key, value) ->
-                doseStatusMap[key] = value
-            }
+            _selectedMedication.value = repository.getMedicationById(id)
         }
     }
 
-    fun getDoseStatus(key: String): Boolean? =
-        doseStatusMap[key]
 
-    fun setDoseStatus(key: String, taken: Boolean) {
-        doseStatusMap[key] = taken
-
-        // Persist to DataStore
-        viewModelScope.launch {
-            DoseStatusStore.save(getApplication(), key, taken)
-        }
-    }
 
     /* ───────── CRUD ───────── */
-
-    fun loadMedication(id: Int, onLoaded: (Medication?) -> Unit) {
-        viewModelScope.launch {
-            onLoaded(repository.getMedicationById(id))
-        }
-    }
 
     fun addMedication(medication: Medication) {
         viewModelScope.launch {
@@ -74,6 +57,30 @@ class MedicationViewModel(application: Application) : AndroidViewModel(applicati
     fun deleteMedication(medication: Medication) {
         viewModelScope.launch {
             repository.deleteMedication(medication)
+        }
+    }
+
+    /* ───────── Dose status persistence (HomeScreen) ───────── */
+
+    private val doseStatusMap = mutableStateMapOf<String, Boolean?>()
+
+    init {
+        viewModelScope.launch {
+            val storedStatuses = DoseStatusStore.loadAll(getApplication())
+            storedStatuses.forEach { (key, value) ->
+                doseStatusMap[key] = value
+            }
+        }
+    }
+
+    fun getDoseStatus(key: String): Boolean? =
+        doseStatusMap[key]
+
+    fun setDoseStatus(key: String, taken: Boolean) {
+        doseStatusMap[key] = taken
+
+        viewModelScope.launch {
+            DoseStatusStore.save(getApplication(), key, taken)
         }
     }
 

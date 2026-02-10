@@ -33,8 +33,14 @@ class MedicationRepository(application: Application) {
     /* ───────── Room + Firebase Sync ───────── */
 
     suspend fun insertMedication(medication: Medication) {
-        dao.insertMedication(medication) // Local first
-        syncToFirebase(medication)
+        val id = dao.insertMedication(medication)
+
+        val withId = medication.copy(id = id.toInt())
+
+        userCollection()
+            .document(withId.id.toString())
+            .set(withId)
+            .await()
     }
 
     suspend fun updateMedication(medication: Medication) {

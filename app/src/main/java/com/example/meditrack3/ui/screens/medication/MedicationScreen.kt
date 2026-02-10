@@ -24,7 +24,6 @@ fun MedicationScreen(navController: NavController) {
     val viewModel: MedicationViewModel = viewModel()
     val medications by viewModel.medications.collectAsState()
 
-    // ── Group medications by frequency/day ──
     val groupedMedications = medications.groupBy { it.frequency }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -79,11 +78,11 @@ fun MedicationScreen(navController: NavController) {
                                 horizontalArrangement = Arrangement.End
                             ) {
 
+                                // ✅ EDIT (FIXED)
                                 TextButton(
                                     onClick = {
-                                        // You can wire this to an edit screen later
                                         navController.navigate(
-                                            Screen.MedicationAdd.route
+                                            Screen.MedicationEdit.createRoute(medication.id)
                                         )
                                     }
                                 ) {
@@ -108,7 +107,6 @@ fun MedicationScreen(navController: NavController) {
             }
         }
 
-        // ── Add Medication FAB ──
         FloatingActionButton(
             onClick = {
                 navController.navigate(Screen.MedicationAdd.route)

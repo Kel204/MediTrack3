@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -12,6 +13,7 @@ import androidx.navigation.navArgument
 import com.example.meditrack3.ui.screens.home.HomeScreen
 import com.example.meditrack3.ui.screens.medication.MedicationAddScreen
 import com.example.meditrack3.ui.screens.medication.MedicationScreen
+import com.example.meditrack3.ui.screens.medication.EditMedicationScreen
 import com.example.meditrack3.ui.screens.insights.InsightsScreen
 import com.example.meditrack3.ui.screens.login.LoginScreen
 import com.example.meditrack3.ui.screens.login.SignupScreen
@@ -39,7 +41,7 @@ fun BuildNavigationGraph() {
                 MedicationScreen(navController)
             }
 
-            composable("medication_lookup") {
+            composable(Screen.MedicationLookUp.route) {
                 MedicationLookupScreen(navController)
             }
 
@@ -65,16 +67,23 @@ fun BuildNavigationGraph() {
                 SignupScreen(navController)
             }
 
-            composable(Screen.MedicationEdit.route) { backStackEntry ->
+            // ✅ EDIT MEDICATION (CORRECT & ONLY ONCE)
+            composable(
+                route = Screen.MedicationEdit.route,
+                arguments = listOf(
+                    navArgument("medicationId") {
+                        type = NavType.IntType
+                    }
+                )
+            ) { backStackEntry ->
+
                 val medicationId =
-                    backStackEntry.arguments
-                        ?.getString("medicationId")
-                        ?.toInt()
+                    backStackEntry.arguments?.getInt("medicationId")
                         ?: return@composable
 
-                MedicationAddScreen(
-                    navController = navController
-                    // medicationId = medicationId
+                EditMedicationScreen(
+                    navController = navController,
+                    medicationId = medicationId
                 )
             }
         }

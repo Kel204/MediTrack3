@@ -9,8 +9,8 @@ interface MedicationDao {
 
     /* ───────── Insert / Update ───────── */
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMedication(medication: Medication)
+    @Insert
+    suspend fun insertMedication(medication: Medication): Long
 
     @Update
     suspend fun updateMedication(medication: Medication)
