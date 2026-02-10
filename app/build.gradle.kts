@@ -70,9 +70,9 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     // ── FireBase ─────────────────────────────
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
-
+    implementation("com.google.firebase:firebase-firestore-ktx")
     // ── JSON Parsing ─────────────────────────────
     implementation(libs.com.google.gson)
 

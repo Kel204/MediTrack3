@@ -1,5 +1,6 @@
 package com.example.meditrack3.ui.screens.login
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,20 +9,34 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.meditrack3.data.repository.MedicationRepository
 import com.example.meditrack3.navigation.Screen
 import com.example.meditrack3.ui.viewmodels.LoginState
 import com.example.meditrack3.ui.viewmodels.LoginViewModel
+import com.example.meditrack3.ui.viewmodels.LoginViewModelFactory
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
 
-    val viewModel: LoginViewModel = viewModel()
+    // ✅ Get Application context
+    val application = LocalContext.current.applicationContext as Application
+
+    // ✅ Create repository once
+    val medicationRepository = remember {
+        MedicationRepository(application)
+    }
+
+    // ✅ Create ViewModel using Factory
+    val viewModel: LoginViewModel = viewModel(
+        factory = LoginViewModelFactory(medicationRepository)
+    )
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -46,31 +61,26 @@ fun LoginScreen(navController: NavHostController) {
             elevation = CardDefaults.cardElevation(10.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .padding(24.dp),
+                modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 Text(
                     text = "Welcome Back",
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    fontWeight = FontWeight.Bold
                 )
 
                 Text(
                     text = "Log in to continue",
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 24.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                // Email Input
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
-                    placeholder = { Text("name@tus.ie") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email
                     ),
@@ -80,12 +90,10 @@ fun LoginScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password Input
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password") },
-                    placeholder = { Text("••••••••") },
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password
@@ -96,39 +104,24 @@ fun LoginScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Login Button
                 Button(
                     onClick = { viewModel.login(email, password) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
+                    shape = RoundedCornerShape(18.dp)
                 ) {
-                    Text(
-                        text = "Sign In",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Text("Sign In", fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Guest Text
                 TextButton(
                     onClick = { navController.navigate(Screen.Home.route) }
                 ) {
-                    Text(
-                        text = "Continue as Guest",
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Text("Continue as Guest")
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Error Message
                 if (loginState is LoginState.Error) {
                     Text(
                         text = (loginState as LoginState.Error).message,
@@ -139,7 +132,6 @@ fun LoginScreen(navController: NavHostController) {
             }
         }
 
-        // Loading Overlay
         if (loginState is LoginState.Loading) {
             Box(
                 modifier = Modifier
@@ -149,13 +141,10 @@ fun LoginScreen(navController: NavHostController) {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary
-                )
+                CircularProgressIndicator()
             }
         }
 
-        // Navigate on success
         if (loginState is LoginState.Success) {
             LaunchedEffect(Unit) {
                 navController.navigate(Screen.Home.route) {

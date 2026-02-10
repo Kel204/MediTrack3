@@ -1,14 +1,20 @@
 package com.example.meditrack3.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.meditrack3.data.repository.MedicationRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val medicationRepository: MedicationRepository
+) : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    /* ───────── Login ───────── */
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState
@@ -18,7 +24,13 @@ class LoginViewModel : ViewModel() {
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
-                _loginState.value = LoginState.Success
+                // ✅ Clear Room data on successful login
+                viewModelScope.launch {
+                    medicationRepository.clearLocalData()
+                    medicationRepository.restoreFromFirebase()
+                    medicationRepository.syncAllToFirebase()
+                    _loginState.value = LoginState.Success
+                }
             }
             .addOnFailureListener { exception ->
                 _loginState.value = LoginState.Error(
@@ -26,6 +38,8 @@ class LoginViewModel : ViewModel() {
                 )
             }
     }
+
+    /* ───────── Sign up ───────── */
 
     private val _signupState = MutableStateFlow<SignupState>(SignupState.Idle)
     val signupState: StateFlow<SignupState> = _signupState
@@ -35,9 +49,14 @@ class LoginViewModel : ViewModel() {
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
-                _signupState.value = SignupState.Success(
-                    userId = result.user?.uid ?: ""
-                )
+                // ✅ Clear Room data for new user as well
+                viewModelScope.launch {
+                    medicationRepository.clearLocalData()
+                    medicationRepository.restoreFromFirebase()
+                    _signupState.value = SignupState.Success(
+                        userId = result.user?.uid ?: ""
+                    )
+                }
             }
             .addOnFailureListener { exception ->
                 _signupState.value = SignupState.Error(
@@ -46,6 +65,8 @@ class LoginViewModel : ViewModel() {
             }
     }
 }
+
+/* ───────── UI States ───────── */
 
 sealed class LoginState {
     object Idle : LoginState()

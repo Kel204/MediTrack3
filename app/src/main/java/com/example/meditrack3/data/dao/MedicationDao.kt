@@ -32,4 +32,10 @@ interface MedicationDao {
     // ✅ Used by ReminderWorker / actions
     @Query("SELECT * FROM medications WHERE id = :id")
     suspend fun getMedicationById(id: Int): Medication?
+
+    @Query("DELETE FROM medications")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM medications")
+    suspend fun getAllAtOnce(): List<Medication>
 }

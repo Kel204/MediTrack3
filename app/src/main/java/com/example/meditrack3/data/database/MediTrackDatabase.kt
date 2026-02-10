@@ -10,7 +10,7 @@ import com.example.meditrack3.data.entity.Medication
 
 @Database(
     entities = [Medication::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class MediTrackDatabase : RoomDatabase() {

@@ -10,25 +10,26 @@ data class Medication(
     val id: Int = 0,
 
     // ── Medication info ──────────────────────────
-    val name: String,
-    val dosage: String,
+    val name: String = "",
+    val dosage: String = "",
 
     // ── Scheduling ───────────────────────────────
-    val frequency: String,          // e.g. Everyday, Weekdays, Mon, Tue
-    val reminderTime: String,       // e.g. "08:00"
-    val startDate: String,          // e.g. "01/10/2026"
+    val frequency: String = "",
+    val reminderTime: String = "",
+    val startDate: String = "",
 
     // ── Reminder behaviour ───────────────────────
     val reminderEnabled: Boolean = true,
 
-    // ── Optional notes / instructions ────────────
+    // ── Optional notes ───────────────────────────
     val notes: String? = null,
 
-    // ── Stock tracking (NEW) ─────────────────────
-    val totalQuantity: Int,         // e.g. 30 tablets supplied
-    val remainingQuantity: Int,     // decreases as doses are taken
-    val dosePerIntake: Int,         // e.g. 1 tablet per reminder
+    // ── Stock tracking ───────────────────────────
+    val totalQuantity: Int = 0,
+    val remainingQuantity: Int = 0,
+    val dosePerIntake: Int = 0,
 
     // ── Low stock alert ──────────────────────────
-    val lowStockThreshold: Int      // e.g. alert when ≤ 5 tablets
+    val lowStockThreshold: Int = 0
 )
+
