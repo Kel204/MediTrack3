@@ -18,7 +18,7 @@ fun BottomNavigationBar(
     val screens = listOf(
         Screen.Home,
         Screen.Medication,
-        Screen.Scan,
+        Screen.MedicationLookUp,
         Screen.Insights
     )
 
@@ -32,10 +32,10 @@ fun BottomNavigationBar(
             painter = painterResource(R.drawable.ic_medication),
             label = stringResource(R.string.nav_medication)
         ),
-        Screen.Scan to NavBarIcon(
+        Screen.MedicationLookUp to NavBarIcon(
             filledIcon = Icons.Filled.AddCircle,
             outlinedIcon = Icons.Outlined.AddCircle,
-            label = stringResource(R.string.nav_scan)
+            label = stringResource(R.string.lookup)
         ),
         Screen.Insights to NavBarIcon(
             filledIcon = Icons.Filled.Check,

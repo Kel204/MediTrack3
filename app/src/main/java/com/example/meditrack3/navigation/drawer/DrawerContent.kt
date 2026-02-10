@@ -96,8 +96,8 @@ fun DrawerContent(
                 navigateAndClose(navController, drawerState, scope, "medication_add")
             }
 
-            DrawerItem("Scan Medication", Icons.Filled.CameraAlt) {
-                navigateAndClose(navController, drawerState, scope, Screen.Scan.route)
+            DrawerItem("Medication Lookup", Icons.Filled.Search) {
+                navigateAndClose(navController, drawerState, scope, "medication_lookup")
             }
 
             DrawerItem("Insights", Icons.Filled.Assessment) {

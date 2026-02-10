@@ -10,7 +10,7 @@ sealed class Screen(val route: String) {
   fun createRoute(medicationId: Int) =
    "medication_edit/$medicationId"
  }
- object Scan : Screen("scan")
+ object MedicationLookUp : Screen("medication_lookup")
  object Signup : Screen("signup")
  object Insights : Screen("insights")
 }
@@ -19,7 +19,7 @@ val screens = listOf(
  Screen.Home,
  Screen.Medication,
  Screen.MedicationAdd,
- Screen.Scan,
+ Screen.MedicationLookUp,
  Screen.Insights,
  Screen.Login,
  Screen.Signup

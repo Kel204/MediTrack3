@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.meditrack3.data.entity.Medication
 import com.example.meditrack3.notifications.ReminderScheduler
 import com.example.meditrack3.ui.viewmodels.MedicationViewModel
+import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -36,11 +37,23 @@ fun MedicationAddScreen(navController: NavController) {
     val viewModel: MedicationViewModel = viewModel()
     val context = LocalContext.current
 
+    val backStackEntry = navController.currentBackStackEntry
+
+    val nameArg = backStackEntry
+        ?.arguments
+        ?.getString("name")
+        ?.let { URLDecoder.decode(it, "UTF-8") }
+
+    val detailsArg = backStackEntry
+        ?.arguments
+        ?.getString("details")
+        ?.let { URLDecoder.decode(it, "UTF-8") }
+
     /* ───────── State ───────── */
 
-    var name by remember { mutableStateOf("") }
+    var name by remember(nameArg) { mutableStateOf(nameArg ?: "") }
     var dosage by remember { mutableStateOf("") }
-    var instructions by remember { mutableStateOf("") }
+    var instructions by remember(detailsArg) { mutableStateOf(detailsArg ?: "")}
 
     var totalQuantity by remember { mutableStateOf("") }
     var dosePerIntake by remember { mutableStateOf("1") }
