@@ -111,16 +111,24 @@ fun LoginScreen(navController: NavHostController) {
                         .height(50.dp),
                     shape = RoundedCornerShape(18.dp)
                 ) {
-                    Text("Sign In", fontWeight = FontWeight.SemiBold)
+                    Text("Log In", fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 TextButton(
-                    onClick = { navController.navigate(Screen.Home.route) }
+                    onClick = {
+                        navController.navigate(Screen.Signup.route)
+                    }
                 ) {
-                    Text("Continue as Guest")
+                    Text(
+                        text = "Not a member? Create an account",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
+
 
                 if (loginState is LoginState.Error) {
                     Text(

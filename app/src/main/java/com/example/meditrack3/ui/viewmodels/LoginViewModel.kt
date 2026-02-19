@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meditrack3.data.repository.MedicationRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -13,6 +15,7 @@ class LoginViewModel(
 ) : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     /* ───────── Login ───────── */
 
@@ -24,18 +27,15 @@ class LoginViewModel(
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
-                // ✅ Clear Room data on successful login
                 viewModelScope.launch {
                     medicationRepository.clearLocalData()
                     medicationRepository.restoreFromFirebase()
-                    medicationRepository.syncAllToFirebase()
                     _loginState.value = LoginState.Success
                 }
             }
             .addOnFailureListener { exception ->
-                _loginState.value = LoginState.Error(
-                    exception.message ?: "Login failed"
-                )
+                _loginState.value =
+                    LoginState.Error(exception.message ?: "Login failed")
             }
     }
 
@@ -49,19 +49,34 @@ class LoginViewModel(
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
-                // ✅ Clear Room data for new user as well
-                viewModelScope.launch {
-                    medicationRepository.clearLocalData()
-                    medicationRepository.restoreFromFirebase()
-                    _signupState.value = SignupState.Success(
-                        userId = result.user?.uid ?: ""
-                    )
-                }
+
+                val uid = result.user?.uid ?: return@addOnSuccessListener
+
+                val userData = hashMapOf(
+                    "email" to email,
+                    "createdAt" to Timestamp.now()
+                )
+
+                firestore.collection("users")
+                    .document(uid)
+                    .set(userData)
+                    .addOnSuccessListener {
+
+                        viewModelScope.launch {
+                            medicationRepository.clearLocalData()
+                            _signupState.value = SignupState.Success(uid)
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        _signupState.value =
+                            SignupState.Error(
+                                e.message ?: "Failed to create user profile"
+                            )
+                    }
             }
             .addOnFailureListener { exception ->
-                _signupState.value = SignupState.Error(
-                    exception.message ?: "Sign up failed"
-                )
+                _signupState.value =
+                    SignupState.Error(exception.message ?: "Sign up failed")
             }
     }
 }

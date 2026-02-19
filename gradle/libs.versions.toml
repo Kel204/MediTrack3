@@ -20,8 +20,9 @@ activityCompose = "1.8.0"
 composeBom = "2024.09.00"
 composeNavigation = "2.9.5"
 
-# UI layout
+# UI layout & Colour
 constraintlayout = "1.1.1"
+materialKolor = "2.0.0"
 
 # Data storage
 room = "2.7.2"
@@ -67,8 +68,9 @@ androidx-material3-icons-extended = { group = "androidx.compose.material", name 
 # Navigation
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "composeNavigation" }
 
-# UI layout
+# UI layout & Colour
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayout" }
+com-materialkolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
 
 # Data storage
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }

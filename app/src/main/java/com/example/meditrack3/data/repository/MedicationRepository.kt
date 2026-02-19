@@ -1,7 +1,6 @@
 package com.example.meditrack3.data.repository
 
 import android.app.Application
-import android.util.Log
 import com.example.meditrack3.auth.AuthManager
 import com.example.meditrack3.data.database.MediTrackDatabase
 import com.example.meditrack3.data.entity.Medication
@@ -16,13 +15,12 @@ class MedicationRepository(application: Application) {
 
     private val firestore = FirebaseFirestore.getInstance()
 
-    // ✅ FIXED: use AuthManager helper, NOT auth directly
     private fun userCollection() =
         firestore.collection("users")
-            .document(AuthManager.getUserId() ?: "guest")
+            .document(AuthManager.currentUser.value?.uid ?: "guest")
             .collection("medications")
 
-    /* ───────── Room (Local) ───────── */
+    /* ───────── Room ───────── */
 
     fun getAllMedications(): Flow<List<Medication>> =
         dao.getAllMedications()
@@ -30,77 +28,65 @@ class MedicationRepository(application: Application) {
     suspend fun getMedicationById(id: Int): Medication? =
         dao.getMedicationById(id)
 
-    /* ───────── Room + Firebase Sync ───────── */
+    suspend fun clearLocalData() {
+        dao.clearAll()
+    }
+
+    /* ───────── Insert (FIXED) ───────── */
 
     suspend fun insertMedication(medication: Medication) {
-        val id = dao.insertMedication(medication)
 
-        val withId = medication.copy(id = id.toInt())
+        // 1️⃣ Insert locally first
+        val generatedId = dao.insertMedication(medication).toInt()
 
-        userCollection()
-            .document(withId.id.toString())
-            .set(withId)
-            .await()
+        // 2️⃣ Copy with real ID
+        val medicationWithId = medication.copy(id = generatedId)
+
+        // 3️⃣ Sync to Firebase
+        syncToFirebase(medicationWithId)
     }
+
+    /* ───────── Update ───────── */
 
     suspend fun updateMedication(medication: Medication) {
         dao.updateMedication(medication)
         syncToFirebase(medication)
     }
 
+    /* ───────── Delete ───────── */
+
     suspend fun deleteMedication(medication: Medication) {
         dao.deleteMedication(medication)
-        deleteFromFirebase(medication)
-    }
 
-    /* ───────── Firebase Helpers ───────── */
-
-    private suspend fun syncToFirebase(medication: Medication) {
-        try {
-            userCollection()
-                .document(medication.id.toString())
-                .set(medication)
-                .await()
-
-            Log.d("FIRESTORE_TEST", "Saved ${medication.name} for user ${AuthManager.getUserId()}")
-        } catch (e: Exception) {
-            Log.e("FIRESTORE_TEST", "Firestore write FAILED", e)
-        }
-    }
-
-    private suspend fun deleteFromFirebase(medication: Medication) {
         userCollection()
             .document(medication.id.toString())
             .delete()
             .await()
     }
 
-    suspend fun clearLocalData() {
-        dao.deleteAll()
+    /* ───────── Firebase Sync ───────── */
+
+    private suspend fun syncToFirebase(medication: Medication) {
+
+        userCollection()
+            .document(medication.id.toString())
+            .set(medication)
+            .await()
     }
 
+    /* ───────── Restore From Firebase ───────── */
+
     suspend fun restoreFromFirebase() {
-        val snapshot = userCollection()
-            .get()
-            .await()
+
+        val snapshot = userCollection().get().await()
 
         snapshot.documents.forEach { document ->
+
             val medication = document.toObject(Medication::class.java)
+
             medication?.let {
                 dao.insertMedication(it)
             }
         }
     }
-
-    suspend fun syncAllToFirebase() {
-        val localMedications = dao.getAllAtOnce()
-
-        localMedications.forEach { medication ->
-            userCollection()
-                .document(medication.id.toString())
-                .set(medication)
-                .await()
-        }
-    }
-
 }

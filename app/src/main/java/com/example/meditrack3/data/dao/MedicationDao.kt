@@ -18,6 +18,9 @@ interface MedicationDao {
     @Delete
     suspend fun deleteMedication(medication: Medication)
 
+    @Query("DELETE FROM medications")
+    suspend fun clearAll()
+
     /* ───────── UI (Flow-based) ───────── */
 
     @Query("SELECT * FROM medications ORDER BY name ASC")
@@ -25,11 +28,11 @@ interface MedicationDao {
 
     /* ───────── Background / WorkManager ───────── */
 
-    // ✅ Used by LowStockWorker
+    // Used by LowStockWorker
     @Query("SELECT * FROM medications")
     fun getAllOnce(): List<Medication>
 
-    // ✅ Used by ReminderWorker / actions
+    // Used by ReminderWorker / actions
     @Query("SELECT * FROM medications WHERE id = :id")
     suspend fun getMedicationById(id: Int): Medication?
 

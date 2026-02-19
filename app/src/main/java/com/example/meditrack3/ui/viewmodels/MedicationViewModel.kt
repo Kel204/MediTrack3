@@ -38,7 +38,11 @@ class MedicationViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    /* Insights functions */
 
+    fun getAllDoseStatuses(): Map<String, Boolean?> {
+        return doseStatusMap.toMap()
+    }
 
     /* ───────── CRUD ───────── */
 

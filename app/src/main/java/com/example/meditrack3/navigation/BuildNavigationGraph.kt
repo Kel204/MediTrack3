@@ -2,6 +2,7 @@ package com.example.meditrack3.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,66 +26,89 @@ fun BuildNavigationGraph() {
 
     val navController = rememberNavController()
 
-    BaseContainer(navHostController = navController) { innerPadding ->
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Login.route
+    ) {
 
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home.route,
-            modifier = Modifier.padding(innerPadding)
+        /* ───────── AUTH SCREENS (NO BASECONTAINER) ───────── */
+
+        composable(Screen.Login.route) {
+            LoginScreen(navController)
+        }
+
+        composable(Screen.Signup.route) {
+            SignupScreen(navController)
+        }
+
+        /* ───────── MAIN APP (USES BASECONTAINER) ───────── */
+
+        composable(Screen.Home.route) {
+            BaseContainer(navHostController = navController) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    HomeScreen(navController)
+                }
+            }
+        }
+
+        composable(Screen.Medication.route) {
+            BaseContainer(navHostController = navController) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    MedicationScreen(navController)
+                }
+            }
+        }
+
+        composable(Screen.MedicationLookUp.route) {
+            BaseContainer(navHostController = navController) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    MedicationLookupScreen(navController)
+                }
+            }
+        }
+
+        composable(
+            route = "medication_add?name={name}&details={details}",
+            arguments = listOf(
+                navArgument("name") { nullable = true },
+                navArgument("details") { nullable = true }
+            )
         ) {
-
-            composable(Screen.Home.route) {
-                HomeScreen(navController)
+            BaseContainer(navHostController = navController) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    MedicationAddScreen(navController)
+                }
             }
+        }
 
-            composable(Screen.Medication.route) {
-                MedicationScreen(navController)
+        composable(Screen.Insights.route) {
+            BaseContainer(navHostController = navController) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    InsightsScreen(navController)
+                }
             }
+        }
 
-            composable(Screen.MedicationLookUp.route) {
-                MedicationLookupScreen(navController)
-            }
+        composable(
+            route = Screen.MedicationEdit.route,
+            arguments = listOf(
+                navArgument("medicationId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
 
-            composable(
-                route = "medication_add?name={name}&details={details}",
-                arguments = listOf(
-                    navArgument("name") { nullable = true },
-                    navArgument("details") { nullable = true }
-                )
-            ) {
-                MedicationAddScreen(navController)
-            }
+            val medicationId =
+                backStackEntry.arguments?.getInt("medicationId")
+                    ?: return@composable
 
-            composable(Screen.Insights.route) {
-                InsightsScreen(navController)
-            }
-
-            composable(Screen.Login.route) {
-                LoginScreen(navController)
-            }
-
-            composable(Screen.Signup.route) {
-                SignupScreen(navController)
-            }
-
-            // ✅ EDIT MEDICATION (CORRECT & ONLY ONCE)
-            composable(
-                route = Screen.MedicationEdit.route,
-                arguments = listOf(
-                    navArgument("medicationId") {
-                        type = NavType.IntType
-                    }
-                )
-            ) { backStackEntry ->
-
-                val medicationId =
-                    backStackEntry.arguments?.getInt("medicationId")
-                        ?: return@composable
-
-                EditMedicationScreen(
-                    navController = navController,
-                    medicationId = medicationId
-                )
+            BaseContainer(navHostController = navController) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    EditMedicationScreen(
+                        navController = navController,
+                        medicationId = medicationId
+                    )
+                }
             }
         }
     }

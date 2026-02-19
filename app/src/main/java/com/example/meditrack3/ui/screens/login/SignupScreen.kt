@@ -1,5 +1,6 @@
 package com.example.meditrack3.ui.screens.login
 
+import android.app.Application
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,20 +11,31 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.meditrack3.data.repository.MedicationRepository
 import com.example.meditrack3.navigation.Screen
 import com.example.meditrack3.ui.viewmodels.LoginViewModel
+import com.example.meditrack3.ui.viewmodels.LoginViewModelFactory
 import com.example.meditrack3.ui.viewmodels.SignupState
 
 @Composable
 fun SignupScreen(navController: NavHostController) {
 
-    val viewModel: LoginViewModel = viewModel()
+    val application = LocalContext.current.applicationContext as Application
+
+    val medicationRepository = remember {
+        MedicationRepository(application)
+    }
+
+    val viewModel: LoginViewModel = viewModel(
+        factory = LoginViewModelFactory(medicationRepository)
+    )
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -35,40 +47,46 @@ fun SignupScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF3F6F4)),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
 
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .padding(16.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(10.dp)
+                .padding(24.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
 
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier.padding(28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                /* ───────── Title ───────── */
 
                 Text(
                     text = "Create Account",
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
-                    text = "Join us to continue",
+                    text = "Securely manage your medications",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    modifier = Modifier.padding(top = 4.dp)
                 )
 
+                Spacer(modifier = Modifier.height(28.dp))
 
-                // EMAIL
+                /* ───────── Email ───────── */
+
                 OutlinedTextField(
                     value = email,
                     onValueChange = {
@@ -76,15 +94,15 @@ fun SignupScreen(navController: NavHostController) {
                         localError = null
                     },
                     label = { Text("Email") },
-                    placeholder = { Text("name@tus.ie") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-                // PASSWORD
+                /* ───────── Password ───────── */
+
                 OutlinedTextField(
                     value = password,
                     onValueChange = {
@@ -92,16 +110,16 @@ fun SignupScreen(navController: NavHostController) {
                         localError = null
                     },
                     label = { Text("Password") },
-                    placeholder = { Text("••••••••") },
                     visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-                // CONFIRM PASSWORD
+                /* ───────── Confirm Password ───────── */
+
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = {
@@ -109,77 +127,67 @@ fun SignupScreen(navController: NavHostController) {
                         localError = null
                     },
                     label = { Text("Confirm Password") },
-                    placeholder = { Text("••••••••") },
                     visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp)
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
-                // SIGNUP BUTTON
+                /* ───────── Create Button ───────── */
+
                 Button(
-                    onClick = {
-                        if (email.isBlank() || password.isBlank()) {
-                            localError = "Email and password cannot be empty."
-                        } else if (password != confirmPassword) {
-                            localError = "Passwords do not match."
-                        } else {
-                            viewModel.signUp(email, password)
-                        }
-                    },
+                    onClick = { /* sign up logic */ },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    enabled = signupState !is SignupState.Loading
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
-                    Text("Create Account", fontWeight = FontWeight.SemiBold)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                TextButton(onClick = {
-                    navController.navigate(Screen.Login.route)
-                }) {
-                    Text("Already have an account? Sign In", color = Color(0xFF6BAF92))
-                }
-
-                // LOCAL ERROR
-                localError?.let {
-                    Text(text = it, color = MaterialTheme.colorScheme.error)
-                }
-
-                // FIREBASE ERROR
-                if (signupState is SignupState.Error) {
                     Text(
-                        text = (signupState as SignupState.Error).message,
-                        color = Color.Red,
-                        modifier = Modifier.padding(top = 12.dp)
+                        "Create Account",
+                        fontWeight = FontWeight.Medium
                     )
                 }
-            }
-        }
 
-        // LOADING OVERLAY
-        AnimatedVisibility(visible = signupState is SignupState.Loading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0x88000000)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Color.White)
-            }
-        }
+                Spacer(modifier = Modifier.height(20.dp))
 
-        // SUCCESS NAVIGATION
-        if (signupState is SignupState.Success) {
-            LaunchedEffect(Unit) {
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                    popUpTo(Screen.Signup.route) { inclusive = true }
+                /* ───────── Sign In Link ───────── */
+
+                TextButton(
+                    onClick = {
+                        navController.navigate(Screen.Login.route)
+                    }
+                ) {
+                    Text(
+                        "Already have an account? Sign In",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                /* ───────── Errors ───────── */
+
+                localError?.let {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                if (signupState is SignupState.Error) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        (signupState as SignupState.Error).message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }
