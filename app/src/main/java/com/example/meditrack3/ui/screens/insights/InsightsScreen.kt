@@ -3,11 +3,13 @@ package com.example.meditrack3.ui.screens.insights
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,7 +31,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InsightsScreen(navController: NavController) {
@@ -47,46 +48,63 @@ fun InsightsScreen(navController: NavController) {
 
     val days = buildList<LocalDate?> {
         repeat(startOffset) { add(null) }
-        for (day in 1..lastDay) {
-            add(currentMonth.atDay(day))
-        }
+        for (day in 1..lastDay) add(currentMonth.atDay(day))
+    }
+
+    val lowStock = medications.filter {
+        it.remainingQuantity <= it.lowStockThreshold
     }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
-        /* ───────── TITLE ───────── */
+        /* ───────── HEADER ───────── */
 
         item {
-            Text(
-                "Insights",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Insights",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "Track your medication adherence",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
+
 
         /* ───────── CALENDAR CARD ───────── */
 
         item {
-
             ElevatedCard(
-                shape = RoundedCornerShape(32.dp),
+                shape = RoundedCornerShape(28.dp),
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.surface
-                )
+                ),
+                elevation = CardDefaults.elevatedCardElevation(6.dp)
             ) {
 
                 Column(
-                    modifier = Modifier.padding(20.dp),
+                    modifier = Modifier.padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
 
-                    /* MONTH HEADER */
+                    /* Month Header */
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -94,50 +112,59 @@ fun InsightsScreen(navController: NavController) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        TextButton(
+                        IconButton(
                             onClick = { currentMonth = currentMonth.minusMonths(1) }
-                        ) { Text("‹") }
+                        ) {
+                            Text("‹", style = MaterialTheme.typography.titleLarge)
+                        }
 
                         Text(
-                            "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${currentMonth.year}",
+                            "${
+                                currentMonth.month.getDisplayName(
+                                    TextStyle.FULL,
+                                    Locale.getDefault()
+                                )
+                            } ${currentMonth.year}",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.SemiBold
                         )
 
-                        TextButton(
+                        IconButton(
                             onClick = { currentMonth = currentMonth.plusMonths(1) }
-                        ) { Text("›") }
+                        ) {
+                            Text("›", style = MaterialTheme.typography.titleLarge)
+                        }
                     }
 
-                    /* WEEKDAY HEADER */
+                    /* Weekdays */
 
                     Row(modifier = Modifier.fillMaxWidth()) {
                         DayOfWeek.values().forEach { day ->
                             Text(
-                                text = day.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
-                                modifier = Modifier.weight(1f),
+                                day.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                                modifier = Modifier.weight(2f),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
 
-                    /* CALENDAR GRID */
+                    /* Calendar Grid */
 
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(7),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(320.dp), // 👈 CRITICAL: fixed height prevents crash
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        userScrollEnabled = false // 👈 important
+                            .height(270.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        userScrollEnabled = false
                     ) {
 
                         items(days) { date ->
 
                             if (date == null) {
-                                Box(modifier = Modifier.aspectRatio(1f))
+                                Box(Modifier.aspectRatio(1f))
                             } else {
 
                                 val result = calculateDayAdherence(
@@ -152,43 +179,69 @@ fun InsightsScreen(navController: NavController) {
                                 Box(
                                     modifier = Modifier
                                         .aspectRatio(1f)
-                                        .clip(CircleShape)
-                                        .background(
-                                            if (isSelected)
-                                                MaterialTheme.colorScheme.primaryContainer
-                                            else
-                                                Color.Transparent
-                                        )
                                         .clickable { selectedDate = date },
                                     contentAlignment = Alignment.Center
                                 ) {
 
-                                    val adherenceColor = when {
-                                        result.totalScheduled == 0 ->
-                                            Color.Transparent
-                                        result.adherence == 100 ->
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                                        result.adherence >= 50 ->
-                                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
-                                        else ->
-                                            MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
+                                    /* Selected Background */
+
+                                    if (isSelected) {
+                                        Box(
+                                            Modifier
+                                                .size(38.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.primary)
+                                        )
                                     }
 
-                                    Box(
-                                        modifier = Modifier
-                                            .size(36.dp)
-                                            .clip(CircleShape)
-                                            .background(adherenceColor),
-                                        contentAlignment = Alignment.Center
+                                    /* Today Outline */
+
+                                    if (isToday && !isSelected) {
+                                        Box(
+                                            Modifier
+                                                .size(38.dp)
+                                                .clip(CircleShape)
+                                                .border(
+                                                    1.5.dp,
+                                                    MaterialTheme.colorScheme.primary,
+                                                    CircleShape
+                                                )
+                                        )
+                                    }
+
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
+
                                         Text(
-                                            text = date.dayOfMonth.toString(),
+                                            date.dayOfMonth.toString(),
                                             fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                                             color = if (isSelected)
-                                                MaterialTheme.colorScheme.onPrimaryContainer
+                                                MaterialTheme.colorScheme.onPrimary
                                             else
                                                 MaterialTheme.colorScheme.onSurface
                                         )
+
+                                        if (result.totalScheduled > 0) {
+
+                                            Spacer(Modifier.height(4.dp))
+
+                                            Box(
+                                                Modifier
+                                                    .size(6.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        when {
+                                                            result.adherence == 100 ->
+                                                                Color(0xFF2E7D32) // deep green
+                                                            result.adherence >= 50 ->
+                                                                Color(0xFFF9A825) // amber
+                                                            else ->
+                                                                Color(0xFFC62828) // deep red
+                                                        }
+                                                    )
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -198,7 +251,7 @@ fun InsightsScreen(navController: NavController) {
             }
         }
 
-        /* ───────── SELECTED DAY SUMMARY ───────── */
+        /* ───────── DAY SUMMARY ───────── */
 
         item {
 
@@ -210,11 +263,14 @@ fun InsightsScreen(navController: NavController) {
 
             ElevatedCard(
                 shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Column(
                     modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
 
                     Text(
@@ -223,59 +279,58 @@ fun InsightsScreen(navController: NavController) {
                         fontWeight = FontWeight.SemiBold
                     )
 
-                    Text("Taken: ${result.totalTaken} / ${result.totalScheduled}")
-                    Text("Adherence: ${result.adherence}%")
+                    Text(
+                        "Taken ${result.totalTaken} of ${result.totalScheduled} doses",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    LinearProgressIndicator(
+                        progress = result.adherence / 100f,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
                     if (result.missedMeds.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            "Missed:",
-                            fontWeight = FontWeight.Medium
-                        )
+                        Divider()
+                        Text("Missed:", fontWeight = FontWeight.Medium)
                         result.missedMeds.forEach {
-                            Text(
-                                "• $it",
-                                color = MaterialTheme.colorScheme.error
-                            )
+                            Text("• $it")
                         }
                     }
                 }
             }
         }
 
-        /* ───────── LOW STOCK SECTION ───────── */
-
-        val lowStock = medications.filter {
-            it.remainingQuantity <= it.lowStockThreshold
-        }
+        /* ───────── LOW STOCK ───────── */
 
         if (lowStock.isNotEmpty()) {
 
             item {
                 Text(
-                    "Low Stock Medications",
+                    "Low Stock",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
             }
 
-            items(lowStock.size) { index ->
-                val med = lowStock[index]
+            items(
+                items = lowStock,
+                key = { it.id }
+            ) { med ->
 
                 ElevatedCard(
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.fillMaxWidth()
+                        .padding(bottom = 18.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             med.name,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             "Remaining: ${med.remainingQuantity}",
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -284,7 +339,7 @@ fun InsightsScreen(navController: NavController) {
     }
 }
 
-/* ───────── ADHERENCE CALCULATION ───────── */
+/* ───────── ADHERENCE CALCULATION FUNCTION ───────── */
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun calculateDayAdherence(

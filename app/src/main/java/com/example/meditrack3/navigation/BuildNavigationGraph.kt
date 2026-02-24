@@ -19,6 +19,7 @@ import com.example.meditrack3.ui.screens.insights.InsightsScreen
 import com.example.meditrack3.ui.screens.login.LoginScreen
 import com.example.meditrack3.ui.screens.login.SignupScreen
 import com.example.meditrack3.ui.screens.lookup.MedicationLookupScreen
+import com.example.meditrack3.ui.screens.settings.SettingsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -28,7 +29,7 @@ fun BuildNavigationGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route
+        startDestination = Screen.Home.route
     ) {
 
         /* ───────── AUTH SCREENS (NO BASECONTAINER) ───────── */
@@ -85,6 +86,13 @@ fun BuildNavigationGraph() {
             BaseContainer(navHostController = navController) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding)) {
                     InsightsScreen(navController)
+                }
+            }
+        }
+        composable(Screen.Settings.route) {
+            BaseContainer(navHostController = navController) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    SettingsScreen(navController)
                 }
             }
         }

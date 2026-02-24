@@ -1,5 +1,7 @@
 package com.example.meditrack3.ui.viewmodels
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meditrack3.data.repository.MedicationRepository
@@ -10,12 +12,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
-    private val medicationRepository: MedicationRepository
-) : ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
+
+    // Now we can pass application safely
+    private val medicationRepository = MedicationRepository(application)
 
     /* ───────── Login ───────── */
 

@@ -20,23 +20,12 @@ import com.example.meditrack3.data.repository.MedicationRepository
 import com.example.meditrack3.navigation.Screen
 import com.example.meditrack3.ui.viewmodels.LoginState
 import com.example.meditrack3.ui.viewmodels.LoginViewModel
-import com.example.meditrack3.ui.viewmodels.LoginViewModelFactory
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
 
-    // ✅ Get Application context
-    val application = LocalContext.current.applicationContext as Application
-
-    // ✅ Create repository once
-    val medicationRepository = remember {
-        MedicationRepository(application)
-    }
-
-    // ✅ Create ViewModel using Factory
-    val viewModel: LoginViewModel = viewModel(
-        factory = LoginViewModelFactory(medicationRepository)
-    )
+    // ✅ AndroidViewModel is automatically provided
+    val viewModel: LoginViewModel = viewModel()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

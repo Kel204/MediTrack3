@@ -19,7 +19,8 @@ fun BottomNavigationBar(
         Screen.Home,
         Screen.Medication,
         Screen.MedicationLookUp,
-        Screen.Insights
+        Screen.Insights,
+        Screen.Settings
     )
 
     val icons = mapOf(
@@ -41,7 +42,12 @@ fun BottomNavigationBar(
             filledIcon = Icons.Filled.Check,
             outlinedIcon = Icons.Outlined.Check,
             label = stringResource(R.string.nav_insights)
-        )
+        ),
+        Screen.Settings to NavBarIcon(
+        filledIcon = Icons.Filled.Settings,
+        outlinedIcon = Icons.Outlined.Settings,
+        label = stringResource(R.string.nav_settings)
+    )
     )
 
     NavigationBar {

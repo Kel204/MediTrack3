@@ -13,6 +13,7 @@ sealed class Screen(val route: String) {
  object MedicationLookUp : Screen("medication_lookup")
  object Signup : Screen("signup")
  object Insights : Screen("insights")
+ object Settings : Screen("settings")
 }
 
 val screens = listOf(
@@ -22,5 +23,6 @@ val screens = listOf(
  Screen.MedicationLookUp,
  Screen.Insights,
  Screen.Login,
- Screen.Signup
+ Screen.Signup,
+ Screen.Settings
 )
