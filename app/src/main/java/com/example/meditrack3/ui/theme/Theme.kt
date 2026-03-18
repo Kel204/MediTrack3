@@ -48,7 +48,7 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun MediTrack3Theme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean,
     content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) DarkColors else LightColors

@@ -39,21 +39,17 @@ fun MedicationAddScreen(navController: NavController) {
 
     val backStackEntry = navController.currentBackStackEntry
 
-    val nameArg = backStackEntry
-        ?.arguments
-        ?.getString("name")
+    val nameArg = backStackEntry?.arguments?.getString("name")
         ?.let { URLDecoder.decode(it, "UTF-8") }
 
-    val detailsArg = backStackEntry
-        ?.arguments
-        ?.getString("details")
+    val detailsArg = backStackEntry?.arguments?.getString("details")
         ?.let { URLDecoder.decode(it, "UTF-8") }
 
     /* ───────── State ───────── */
 
     var name by remember(nameArg) { mutableStateOf(nameArg ?: "") }
     var dosage by remember { mutableStateOf("") }
-    var instructions by remember(detailsArg) { mutableStateOf(detailsArg ?: "")}
+    var instructions by remember(detailsArg) { mutableStateOf(detailsArg ?: "") }
 
     var totalQuantity by remember { mutableStateOf("") }
     var dosePerIntake by remember { mutableStateOf("1") }
@@ -67,10 +63,18 @@ fun MedicationAddScreen(navController: NavController) {
         mutableStateOf(LocalDate.now().format(dateFormatter))
     }
 
-    val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-    val weekdays = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
-    val weekends = listOf("Sat", "Sun")
+    val daysOfWeek = listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
+    val weekdays = listOf("Mon","Tue","Wed","Thu","Fri")
+    val weekends = listOf("Sat","Sun")
     val selectedDays = remember { mutableStateListOf<String>() }
+
+    /* 🔥 VALIDATION STATES */
+
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var dosageError by remember { mutableStateOf<String?>(null) }
+    var quantityError by remember { mutableStateOf<String?>(null) }
+    var reminderError by remember { mutableStateOf<String?>(null) }
+    var repeatError by remember { mutableStateOf<String?>(null) }
 
     /* ───────── Pickers ───────── */
 
@@ -125,39 +129,39 @@ fun MedicationAddScreen(navController: NavController) {
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
 
-        Text(
-            text = "Medication Reminder",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
+        Text("Medication Reminder", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
 
         /* ───────── Medication Details ───────── */
 
         Card {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
                 SectionHeader("Medication Details", Icons.Default.MedicalServices)
 
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = { name = it; nameError = null },
                     label = { Text("Medication Name") },
+                    isError = nameError != null,
+                    supportingText = { nameError?.let { Text(it) } },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = dosage,
-                    onValueChange = { dosage = it },
+                    onValueChange = { dosage = it; dosageError = null },
                     label = { Text("Dosage (e.g. 500mg)") },
+                    isError = dosageError != null,
+                    supportingText = { dosageError?.let { Text(it) } },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = totalQuantity,
-                    onValueChange = { totalQuantity = it.filter(Char::isDigit) },
+                    onValueChange = { totalQuantity = it.filter(Char::isDigit); quantityError = null },
                     label = { Text("Total Quantity Supplied") },
+                    isError = quantityError != null,
+                    supportingText = { quantityError?.let { Text(it) } },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -187,10 +191,7 @@ fun MedicationAddScreen(navController: NavController) {
         /* ───────── Reminders ───────── */
 
         Card {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -198,10 +199,7 @@ fun MedicationAddScreen(navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     SectionHeader("Reminders", Icons.Default.Alarm)
-                    Switch(
-                        checked = reminderEnabled,
-                        onCheckedChange = { reminderEnabled = it }
-                    )
+                    Switch(checked = reminderEnabled, onCheckedChange = { reminderEnabled = it })
                 }
 
                 if (reminderEnabled) {
@@ -209,10 +207,7 @@ fun MedicationAddScreen(navController: NavController) {
                     Text("Reminder Times", fontWeight = FontWeight.SemiBold)
 
                     reminderTimes.forEachIndexed { index, time ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Text(time)
                             Spacer(Modifier.weight(1f))
                             IconButton(onClick = { reminderTimes.removeAt(index) }) {
@@ -227,24 +222,28 @@ fun MedicationAddScreen(navController: NavController) {
                         Text("Add Time")
                     }
 
+                    reminderError?.let {
+                        Text(it, color = MaterialTheme.colorScheme.error)
+                    }
+
                     Text("Repeat", fontWeight = FontWeight.SemiBold)
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         PresetChip("Everyday") {
                             selectedDays.clear(); selectedDays.addAll(daysOfWeek)
+                            repeatError = null
                         }
                         PresetChip("Weekdays") {
                             selectedDays.clear(); selectedDays.addAll(weekdays)
+                            repeatError = null
                         }
                         PresetChip("Weekends") {
                             selectedDays.clear(); selectedDays.addAll(weekends)
+                            repeatError = null
                         }
                     }
 
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(4),
-                        modifier = Modifier.height(120.dp)
-                    ) {
+                    LazyVerticalGrid(columns = GridCells.Fixed(4), modifier = Modifier.height(120.dp)) {
                         items(daysOfWeek) { day ->
                             FilterChip(
                                 selected = selectedDays.contains(day),
@@ -253,11 +252,16 @@ fun MedicationAddScreen(navController: NavController) {
                                         selectedDays.remove(day)
                                     } else {
                                         selectedDays.add(day)
+                                        repeatError = null
                                     }
                                 },
                                 label = { Text(day) }
                             )
                         }
+                    }
+
+                    repeatError?.let {
+                        Text(it, color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
@@ -266,20 +270,16 @@ fun MedicationAddScreen(navController: NavController) {
         /* ───────── Schedule ───────── */
 
         Card {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(Modifier.padding(16.dp)) {
 
                 SectionHeader("Schedule", Icons.Default.CalendarToday)
 
                 Spacer(Modifier.height(12.dp))
 
-                val startDateLabel = remember(startDate) {
-                    getStartDateLabel(startDate)
-                }
+                val startDateLabel = remember(startDate) { getStartDateLabel(startDate) }
 
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showDatePicker() }
+                    modifier = Modifier.fillMaxWidth().clickable { showDatePicker() }
                 ) {
                     OutlinedTextField(
                         value = startDate,
@@ -287,12 +287,8 @@ fun MedicationAddScreen(navController: NavController) {
                         enabled = false,
                         label = { Text("Start Date") },
                         supportingText = { Text(startDateLabel) },
-                        leadingIcon = {
-                            Icon(Icons.Default.CalendarToday, contentDescription = null)
-                        },
-                        trailingIcon = {
-                            Icon(Icons.Default.Edit, contentDescription = null)
-                        },
+                        leadingIcon = { Icon(Icons.Default.CalendarToday, null) },
+                        trailingIcon = { Icon(Icons.Default.Edit, null) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -302,10 +298,31 @@ fun MedicationAddScreen(navController: NavController) {
         /* ───────── Save ───────── */
 
         Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
             onClick = {
+
+                var isValid = true
+
+                if (name.isBlank()) { nameError = "Medication name is required"; isValid = false }
+                if (dosage.isBlank()) { dosageError = "Dosage is required"; isValid = false }
+
+                val totalQtyCheck = totalQuantity.toIntOrNull()
+                if (totalQtyCheck == null || totalQtyCheck <= 0) {
+                    quantityError = "Enter a valid quantity"
+                    isValid = false
+                }
+
+                if (reminderEnabled && reminderTimes.isEmpty()) {
+                    reminderError = "Add at least one reminder time"
+                    isValid = false
+                }
+
+                if (reminderEnabled && selectedDays.isEmpty()) {
+                    repeatError = "Select at least one day"
+                    isValid = false
+                }
+
+                if (!isValid) return@Button
 
                 val totalQty = totalQuantity.toIntOrNull() ?: return@Button
                 val dose = dosePerIntake.toIntOrNull() ?: 1
@@ -332,7 +349,6 @@ fun MedicationAddScreen(navController: NavController) {
                     )
                 )
 
-                // ✅ WorkManager scheduling
                 if (reminderEnabled) {
                     ReminderScheduler.scheduleMedicationReminders(
                         context = context,

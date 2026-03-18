@@ -5,7 +5,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
 
-    private const val BASE_URL = "https://api.fda.gov/"
+    private const val BASE_URL =
+        "https://raw.githubusercontent.com/Kel204/Medicines-Database/refs/heads/main/"
 
     val api: MedicationApiService by lazy {
         Retrofit.Builder()

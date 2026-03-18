@@ -1,0 +1,12 @@
+package com.example.meditrack3.ui.viewmodels
+
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+
+class ThemeViewModel : ViewModel() {
+    var isDarkMode = mutableStateOf(false)
+
+    fun toggleDarkMode(enabled: Boolean) {
+        isDarkMode.value = enabled
+    }
+}

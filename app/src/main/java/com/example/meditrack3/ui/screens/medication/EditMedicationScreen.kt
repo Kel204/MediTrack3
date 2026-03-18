@@ -38,13 +38,9 @@ fun EditMedicationScreen(
     val context = LocalContext.current
     val medication by viewModel.selectedMedication.collectAsState()
 
-    /* ───────── Load medication ───────── */
-
     LaunchedEffect(medicationId) {
         viewModel.loadMedicationById(medicationId)
     }
-
-    /* ───────── State ───────── */
 
     var name by remember { mutableStateOf("") }
     var dosage by remember { mutableStateOf("") }
@@ -57,16 +53,14 @@ fun EditMedicationScreen(
     val reminderTimes = remember { mutableStateListOf<String>() }
     val selectedDays = remember { mutableStateListOf<String>() }
 
-    val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-    var startDate by remember {
-        mutableStateOf(LocalDate.now().format(dateFormatter))
-    }
+    val daysOfWeek = listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
 
-    val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-    val weekdays = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
-    val weekends = listOf("Sat", "Sun")
-
-    /* ───────── Prefill once loaded ───────── */
+    var dosageError by remember { mutableStateOf<String?>(null) }
+    var quantityError by remember { mutableStateOf<String?>(null) }
+    var doseError by remember { mutableStateOf<String?>(null) }
+    var lowStockError by remember { mutableStateOf<String?>(null) }
+    var reminderError by remember { mutableStateOf<String?>(null) }
+    var repeatError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(medication) {
         medication?.let {
@@ -77,7 +71,6 @@ fun EditMedicationScreen(
             dosePerIntake = it.dosePerIntake.toString()
             lowStockThreshold = it.lowStockThreshold.toString()
             reminderEnabled = it.reminderEnabled
-            startDate = it.startDate
 
             reminderTimes.clear()
             reminderTimes.addAll(it.reminderTime.split(","))
@@ -87,61 +80,41 @@ fun EditMedicationScreen(
         }
     }
 
-    /* ───────── Pickers ───────── */
-
     fun showTimePicker() {
         val now = Calendar.getInstance()
-        TimePickerDialog(
-            context,
-            { _, hour, minute ->
-                val time = String.format("%02d:%02d", hour, minute)
-                if (!reminderTimes.contains(time)) reminderTimes.add(time)
-            },
-            now.get(Calendar.HOUR_OF_DAY),
-            now.get(Calendar.MINUTE),
-            true
-        ).show()
+        TimePickerDialog(context, { _, h, m ->
+            val time = "%02d:%02d".format(h, m)
+            if (!reminderTimes.contains(time)) reminderTimes.add(time)
+        }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true).show()
     }
-
-    fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        DatePickerDialog(
-            context,
-            { _, year, month, day ->
-                startDate = LocalDate.of(year, month + 1, day)
-                    .format(dateFormatter)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
-
-    /* ───────── UI ───────── */
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
         Text(
-            text = "Edit Medication",
-            style = MaterialTheme.typography.headlineMedium,
+            "Edit Medication",
+            style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold
         )
 
-        Card {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+        /* ───────── DETAILS ───────── */
+
+        Card(
+            shape = MaterialTheme.shapes.large,
+            elevation = CardDefaults.cardElevation(6.dp)
+        ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+                SectionHeader("Medication Details", Icons.Default.MedicalServices)
 
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { },
+                    onValueChange = {},
                     enabled = false,
                     label = { Text("Medication Name") },
                     modifier = Modifier.fillMaxWidth()
@@ -149,31 +122,40 @@ fun EditMedicationScreen(
 
                 OutlinedTextField(
                     value = dosage,
-                    onValueChange = { dosage = it },
+                    onValueChange = { dosage = it; dosageError = null },
+                    isError = dosageError != null,
+                    supportingText = { dosageError?.let { Text(it) } },
                     label = { Text("Dosage") },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = totalQuantity,
-                    onValueChange = { totalQuantity = it.filter(Char::isDigit) },
+                    onValueChange = { totalQuantity = it.filter(Char::isDigit); quantityError = null },
+                    isError = quantityError != null,
+                    supportingText = { quantityError?.let { Text(it) } },
                     label = { Text("Total Quantity") },
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
-                    value = dosePerIntake,
-                    onValueChange = { dosePerIntake = it.filter(Char::isDigit) },
-                    label = { Text("Dose per Intake") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
 
-                OutlinedTextField(
-                    value = lowStockThreshold,
-                    onValueChange = { lowStockThreshold = it.filter(Char::isDigit) },
-                    label = { Text("Low Stock Threshold") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = dosePerIntake,
+                        onValueChange = { dosePerIntake = it.filter(Char::isDigit); doseError = null },
+                        isError = doseError != null,
+                        label = { Text("Dose") },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    OutlinedTextField(
+                        value = lowStockThreshold,
+                        onValueChange = { lowStockThreshold = it.filter(Char::isDigit); lowStockError = null },
+                        isError = lowStockError != null,
+                        label = { Text("Low Stock") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
 
                 OutlinedTextField(
                     value = instructions,
@@ -184,11 +166,107 @@ fun EditMedicationScreen(
             }
         }
 
+        /* ───────── REMINDERS ───────── */
+
+        Card(
+            shape = MaterialTheme.shapes.large,
+            elevation = CardDefaults.cardElevation(6.dp)
+        ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SectionHeader("Reminders", Icons.Default.Alarm)
+                    Switch(reminderEnabled, onCheckedChange = { reminderEnabled = it })
+                }
+
+                if (reminderEnabled) {
+
+                    reminderTimes.forEachIndexed { i, time ->
+                        AssistChip(
+                            onClick = { reminderTimes.removeAt(i) },
+                            label = { Text(time) },
+                            trailingIcon = {
+                                Icon(Icons.Default.Close, null)
+                            }
+                        )
+                    }
+
+                    OutlinedButton(onClick = { showTimePicker() }) {
+                        Icon(Icons.Default.Add, null)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Add Time")
+                    }
+
+                    reminderError?.let {
+                        Text(it, color = MaterialTheme.colorScheme.error)
+                    }
+
+                    Text("Repeat Days", fontWeight = FontWeight.SemiBold)
+
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(4),
+                        modifier = Modifier.height(120.dp)
+                    ) {
+                        items(daysOfWeek) { day ->
+                            FilterChip(
+                                selected = selectedDays.contains(day),
+                                onClick = {
+                                    if (selectedDays.contains(day)) {
+                                        selectedDays.remove(day)
+                                    } else {
+                                        selectedDays.add(day)
+                                        repeatError = null
+                                    }
+                                },
+                                label = { Text(day) }
+                            )
+                        }
+                    }
+
+                    repeatError?.let {
+                        Text(it, color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+        }
+
+        /* ───────── SAVE BUTTON ───────── */
+
         Button(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
+            shape = MaterialTheme.shapes.large,
             onClick = {
+
+                var isValid = true
+
+                if (dosage.isBlank()) { dosageError = "Required"; isValid = false }
+
+                val qty = totalQuantity.toIntOrNull()
+                if (qty == null || qty <= 0) { quantityError = "Invalid"; isValid = false }
+
+                val dose = dosePerIntake.toIntOrNull()
+                if (dose == null || dose <= 0) { doseError = "Invalid"; isValid = false }
+
+                val low = lowStockThreshold.toIntOrNull()
+                if (low == null || low < 0) { lowStockError = "Invalid"; isValid = false }
+
+                if (reminderEnabled && reminderTimes.isEmpty()) {
+                    reminderError = "Add a time"
+                    isValid = false
+                }
+
+                if (reminderEnabled && selectedDays.isEmpty()) {
+                    repeatError = "Select a day"
+                    isValid = false
+                }
+
+                if (!isValid) return@Button
 
                 val updated = medication?.copy(
                     dosage = dosage,
@@ -198,8 +276,7 @@ fun EditMedicationScreen(
                     lowStockThreshold = lowStockThreshold.toInt(),
                     reminderEnabled = reminderEnabled,
                     reminderTime = reminderTimes.joinToString(),
-                    frequency = selectedDays.joinToString(),
-                    startDate = startDate
+                    frequency = selectedDays.joinToString()
                 ) ?: return@Button
 
                 viewModel.updateMedication(updated)
@@ -208,5 +285,14 @@ fun EditMedicationScreen(
         ) {
             Text("Save Changes")
         }
+    }
+}
+
+@Composable
+private fun SectionHeader(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null)
+        Spacer(Modifier.width(8.dp))
+        Text(title, fontWeight = FontWeight.SemiBold)
     }
 }

@@ -14,15 +14,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.meditrack3.navigation.BuildNavigationGraph
 import com.example.meditrack3.ui.theme.MediTrack3Theme
+import com.example.meditrack3.ui.viewmodels.ThemeViewModel
 
 class MainActivity : ComponentActivity() {
 
     private val notificationPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
-        ) { /* no-op */ }
+        ) {  }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,10 +39,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            MediTrack3Theme {
+            val themeViewModel: ThemeViewModel = viewModel()
+
+            MediTrack3Theme(
+                darkTheme = themeViewModel.isDarkMode.value
+            ) {
                 BuildNavigationGraph()
             }
         }
-
     }
 }

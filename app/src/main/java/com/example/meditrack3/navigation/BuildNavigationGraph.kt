@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,12 +21,14 @@ import com.example.meditrack3.ui.screens.login.LoginScreen
 import com.example.meditrack3.ui.screens.login.SignupScreen
 import com.example.meditrack3.ui.screens.lookup.MedicationLookupScreen
 import com.example.meditrack3.ui.screens.settings.SettingsScreen
+import com.example.meditrack3.ui.viewmodels.ThemeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BuildNavigationGraph() {
 
     val navController = rememberNavController()
+    val themeViewModel: ThemeViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -92,7 +95,10 @@ fun BuildNavigationGraph() {
         composable(Screen.Settings.route) {
             BaseContainer(navHostController = navController) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding)) {
-                    SettingsScreen(navController)
+                    SettingsScreen(
+                        navController = navController,
+                        themeViewModel = themeViewModel // ✅ correct
+                    )
                 }
             }
         }

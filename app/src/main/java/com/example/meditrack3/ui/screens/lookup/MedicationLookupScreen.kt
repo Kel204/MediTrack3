@@ -4,28 +4,31 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.meditrack3.ui.viewmodels.MedicationLookupViewModel
 import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @Composable
 fun MedicationLookupScreen(
-    navController: NavHostController
+    navController: NavController,
+    viewModel: MedicationLookupViewModel = viewModel()
 ) {
-    val viewModel: MedicationLookupViewModel = viewModel()
-    val results by viewModel.results.collectAsState()
 
+    val results by viewModel.results.collectAsState()
     var query by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(true) }
+
+    // ✅ Load medicines once
+    LaunchedEffect(Unit) {
+        viewModel.loadMedicines()
+        isLoading = false
+    }
 
     Column(
         modifier = Modifier
@@ -33,133 +36,59 @@ fun MedicationLookupScreen(
             .padding(16.dp)
     ) {
 
-        /* ───────── Header ───────── */
-
         Text(
-            text = "Medication Lookup",
+            text = "Medication Search",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
 
-        Text(
-            text = "Search for a medication to add",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 16.dp)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔍 Search Bar
+        OutlinedTextField(
+            value = query,
+            onValueChange = {
+                query = it
+                viewModel.search(it)
+            },
+            label = { Text("Search medication...") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true
         )
 
-        /* ───────── Search Card ───────── */
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Card(
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            ),
-            elevation = CardDefaults.cardElevation(6.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text("Medication name") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = null
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    singleLine = true
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                Button(
-                    onClick = { viewModel.search(query) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Text("Search")
-                }
+        // 📊 UI States
+        when {
+            isLoading -> {
+                CircularProgressIndicator()
             }
-        }
 
-        Spacer(Modifier.height(20.dp))
-
-        /* ───────── Results ───────── */
-
-        if (results.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No results yet.\nTry searching for a medication.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            query.isEmpty() -> {
+                Text("Start typing to search medications...")
             }
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(results) { item ->
-                    Card(
-                        onClick = {
-                            val encodedName = URLEncoder.encode(
-                                item.name,
-                                StandardCharsets.UTF_8.toString()
-                            )
 
-                            val encodedForm = URLEncoder.encode(
-                                item.description ?: "",
-                                StandardCharsets.UTF_8.toString()
-                            )
+            results.isEmpty() -> {
+                Text("No results found")
+            }
 
-                            navController.navigate(
-                                "medication_add?name=$encodedName&details=$encodedForm"
-                            )
-                        },
-                        shape = RoundedCornerShape(18.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = item.name,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
+            else -> {
+                LazyColumn {
+                    items(results) { item ->
+                        MedicationItem(
+                            name = item.name,
+                            description = item.description,
+                            onClick = {
 
-                            item.description?.let {
-                                Spacer(Modifier.height(6.dp))
-                                Text(
-                                    text = it,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 3
+                                val encodedName = URLEncoder.encode(item.name, "UTF-8")
+                                val encodedDetails = URLEncoder.encode(item.description ?: "", "UTF-8")
+
+                                navController.navigate(
+                                    "medication_add?name=$encodedName&details=$encodedDetails"
                                 )
                             }
-
-                            Spacer(Modifier.height(8.dp))
-
-                            Text(
-                                text = "Tap to add",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                        )
                     }
                 }
             }
