@@ -22,6 +22,8 @@ object ReminderScheduler {
             val localTime = LocalTime.parse(time)
             val delay = Duration.between(LocalTime.now(), localTime)
                 .let { if (it.isNegative) it.plusDays(1) else it }
+                .minusSeconds(2)
+                .let { if (it.isNegative) Duration.ZERO else it }
 
             val data = workDataOf(
                 "medication_name" to medicationName,
@@ -29,7 +31,7 @@ object ReminderScheduler {
             )
 
             val request = OneTimeWorkRequestBuilder<MedicationReminderWorker>()
-                .setInitialDelay(delay.toMinutes(), TimeUnit.MINUTES)
+                .setInitialDelay(delay.seconds, TimeUnit.SECONDS)
                 .setInputData(data)
                 .build()
 

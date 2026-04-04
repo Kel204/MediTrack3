@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.meditrack3.ui.screens.home.HomeScreen
 import com.example.meditrack3.ui.screens.medication.MedicationAddScreen
@@ -25,9 +25,8 @@ import com.example.meditrack3.ui.viewmodels.ThemeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BuildNavigationGraph() {
+fun BuildNavigationGraph(navController: NavHostController) {
 
-    val navController = rememberNavController()
     val themeViewModel: ThemeViewModel = viewModel()
 
     NavHost(
