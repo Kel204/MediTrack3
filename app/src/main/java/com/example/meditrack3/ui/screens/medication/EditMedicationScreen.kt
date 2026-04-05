@@ -1,10 +1,8 @@
 package com.example.meditrack3.ui.screens.medication
 
-import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -22,10 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.meditrack3.data.entity.Medication
 import com.example.meditrack3.ui.viewmodels.MedicationViewModel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -76,7 +71,14 @@ fun EditMedicationScreen(
             reminderTimes.addAll(it.reminderTime.split(","))
 
             selectedDays.clear()
-            selectedDays.addAll(it.frequency.split(","))
+            selectedDays.addAll(
+                it.frequency
+                    .split(",")
+                    .map { it.trim() }
+                    .filter { day ->
+                        day in listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
+                    }
+            )
         }
     }
 

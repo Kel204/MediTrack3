@@ -31,7 +31,7 @@ fun BuildNavigationGraph(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.Login.route
     ) {
 
         /* ───────── AUTH SCREENS (NO BASECONTAINER) ───────── */

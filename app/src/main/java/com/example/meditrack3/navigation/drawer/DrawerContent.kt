@@ -1,21 +1,29 @@
 package com.example.meditrack3.navigation.drawer
 
+import android.graphics.BitmapFactory
+import android.util.Base64
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.meditrack3.auth.AuthManager
 import com.example.meditrack3.navigation.Screen
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 @Composable
@@ -27,6 +35,28 @@ fun DrawerContent(
     val user = AuthManager.currentUser.value
     val isLoggedIn = user != null
 
+    val auth = FirebaseAuth.getInstance()
+    val db = FirebaseFirestore.getInstance()
+    val firebaseUser = auth.currentUser
+
+    var profileImageBase64 by remember { mutableStateOf<String?>(null) }
+
+    //Load profile image
+    LaunchedEffect(firebaseUser) {
+        firebaseUser?.let { user ->
+            db.collection("users").document(user.uid).get()
+                .addOnSuccessListener {
+                    profileImageBase64 = it.getString("profileImage")
+                }
+        }
+    }
+
+    //Decode image from firebase
+    val bitmap = profileImageBase64?.let {
+        val bytes = Base64.decode(it, Base64.DEFAULT)
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth(0.7f)
@@ -37,15 +67,26 @@ fun DrawerContent(
 
         /* ───────── Header ───────── */
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(56.dp)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+
+            // update profile image
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.AccountCircle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(56.dp)
+                )
+            }
 
             Spacer(Modifier.width(12.dp))
 
@@ -64,7 +105,6 @@ fun DrawerContent(
             }
         }
 
-        Divider()
 
         /* ───────── Navigation Section ───────── */
 

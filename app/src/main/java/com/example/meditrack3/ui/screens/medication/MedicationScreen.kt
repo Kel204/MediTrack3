@@ -24,7 +24,21 @@ fun MedicationScreen(navController: NavController) {
     val viewModel: MedicationViewModel = viewModel()
     val medications by viewModel.medications.collectAsState()
 
-    val groupedMedications = medications.groupBy { it.frequency }
+    // fixed grouping logic for bug
+    val groupedMedications = medications.groupBy { med ->
+        val days = med.frequency
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .toSet()
+
+        when {
+            days.size == 7 -> "Everyday"
+            days == setOf("Sat", "Sun") -> "Weekends"
+            days == setOf("Mon", "Tue", "Wed", "Thu", "Fri") -> "Weekdays"
+            else -> days.joinToString(", ")
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -35,11 +49,11 @@ fun MedicationScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            groupedMedications.forEach { (day, medsForDay) ->
+            groupedMedications.forEach { (dayLabel, medsForDay) ->
 
                 item {
                     Text(
-                        text = day,
+                        text = dayLabel,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -78,7 +92,6 @@ fun MedicationScreen(navController: NavController) {
                                 horizontalArrangement = Arrangement.End
                             ) {
 
-                                // ✅ EDIT (FIXED)
                                 TextButton(
                                     onClick = {
                                         navController.navigate(
