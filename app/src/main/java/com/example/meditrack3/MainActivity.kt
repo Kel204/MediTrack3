@@ -18,7 +18,6 @@ import com.example.meditrack3.ui.viewmodels.ThemeViewModel
 
 class MainActivity : ComponentActivity() {
 
-    // 👉 holds where we want to navigate
     private var navigationTarget by mutableStateOf<String?>(null)
 
     private val notificationPermissionLauncher =
@@ -30,7 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 👉 Get navigation info from notification
+        // Navigation info from notification
         navigationTarget = intent?.getStringExtra("navigate_to")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -50,7 +49,7 @@ class MainActivity : ComponentActivity() {
                 darkTheme = themeViewModel.isDarkMode.value
             ) {
 
-                // 👉 Handle navigation trigger
+                // Navigation trigger
                 LaunchedEffect(navigationTarget) {
                     navigationTarget?.let { target ->
 
@@ -65,13 +64,11 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // 👉 IMPORTANT: pass navController
                 BuildNavigationGraph( navController = navController)
             }
         }
     }
 
-    // 👉 Handles when app already open
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)

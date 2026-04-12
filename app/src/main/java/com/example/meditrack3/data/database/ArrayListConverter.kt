@@ -9,11 +9,6 @@ class ArrayListConverter {
 
     private val gson = Gson()
 
-//    @TypeConverter
-//    fun fromStringList(value: List<String>?): String {
-//        return gson.toJson(value ?: emptyList())
-//    }
-
     @TypeConverter
     fun toStringList(value: String?): List<String> {
         if (value.isNullOrEmpty()) return emptyList()

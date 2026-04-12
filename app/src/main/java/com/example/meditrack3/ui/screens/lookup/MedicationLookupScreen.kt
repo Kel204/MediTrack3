@@ -24,7 +24,7 @@ fun MedicationLookupScreen(
     var query by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(true) }
 
-    // ✅ Load medicines once
+    // Load medicines
     LaunchedEffect(Unit) {
         viewModel.loadMedicines()
         isLoading = false
@@ -44,7 +44,7 @@ fun MedicationLookupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔍 Search Bar
+        // Search Bar
         OutlinedTextField(
             value = query,
             onValueChange = {
@@ -59,7 +59,7 @@ fun MedicationLookupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 📊 UI States
+        // UI States
         when {
             isLoading -> {
                 CircularProgressIndicator()

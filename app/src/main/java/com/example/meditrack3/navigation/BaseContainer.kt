@@ -29,17 +29,14 @@ fun BaseContainer(
         }
     ) {
         Scaffold(
-            // 🤍 MAIN CONTENT AREA = WHITE
             containerColor = MaterialTheme.colorScheme.surface,
 
-            // 🌸 TOP BAR = PINK (handled internally)
             topBar = {
                 TopBarNavigation(
                     drawerState = drawerState
                 )
             },
 
-            // Optional: bottom bar already styled by theme
             bottomBar = {
                 BottomNavigationBar(navHostController)
             }

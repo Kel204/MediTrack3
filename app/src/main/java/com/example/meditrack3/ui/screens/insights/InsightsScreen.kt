@@ -63,7 +63,7 @@ fun InsightsScreen(navController: NavController) {
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
-        /* ───────── HEADER ───────── */
+        /* ───────── Header ───────── */
 
         item {
             Column(
@@ -87,7 +87,7 @@ fun InsightsScreen(navController: NavController) {
         }
 
 
-        /* ───────── CALENDAR CARD ───────── */
+        /* ───────── Calender Card ───────── */
 
         item {
             ElevatedCard(
@@ -251,7 +251,7 @@ fun InsightsScreen(navController: NavController) {
             }
         }
 
-        /* ───────── DAY SUMMARY ───────── */
+        /* ───────── Day Summary ───────── */
 
         item {
 
@@ -291,7 +291,7 @@ fun InsightsScreen(navController: NavController) {
                     )
 
                     if (result.missedMeds.isNotEmpty()) {
-                        Divider()
+
                         Text("Missed:", fontWeight = FontWeight.Medium)
                         result.missedMeds.forEach {
                             Text("• $it")
@@ -301,7 +301,7 @@ fun InsightsScreen(navController: NavController) {
             }
         }
 
-        /* ───────── LOW STOCK ───────── */
+        /* ───────── Low Stock ───────── */
 
         if (lowStock.isNotEmpty()) {
 
@@ -339,7 +339,7 @@ fun InsightsScreen(navController: NavController) {
     }
 }
 
-/* ───────── ADHERENCE CALCULATION FUNCTION ───────── */
+/* ───────── Adherence Calculation Function ───────── */
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun calculateDayAdherence(

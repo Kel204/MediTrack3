@@ -26,7 +26,7 @@ fun TopBarNavigation(
     CenterAlignedTopAppBar(
 
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,        // PINK
+            containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
             navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
         ),

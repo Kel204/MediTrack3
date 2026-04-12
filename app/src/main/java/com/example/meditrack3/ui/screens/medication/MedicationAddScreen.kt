@@ -68,7 +68,6 @@ fun MedicationAddScreen(navController: NavController) {
     val weekends = listOf("Sat","Sun")
     val selectedDays = remember { mutableStateListOf<String>() }
 
-    /* 🔥 VALIDATION STATES */
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var dosageError by remember { mutableStateOf<String?>(null) }

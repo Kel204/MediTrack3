@@ -104,7 +104,7 @@ fun EditMedicationScreen(
             fontWeight = FontWeight.Bold
         )
 
-        /* ───────── DETAILS ───────── */
+        /* ───────── Details ───────── */
 
         Card(
             shape = MaterialTheme.shapes.large,
@@ -168,7 +168,7 @@ fun EditMedicationScreen(
             }
         }
 
-        /* ───────── REMINDERS ───────── */
+        /* ───────── Reminders ───────── */
 
         Card(
             shape = MaterialTheme.shapes.large,
@@ -236,7 +236,7 @@ fun EditMedicationScreen(
             }
         }
 
-        /* ───────── SAVE BUTTON ───────── */
+        /* ───────── Save Button ───────── */
 
         Button(
             modifier = Modifier

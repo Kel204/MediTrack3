@@ -1,6 +1,5 @@
 package com.example.meditrack3.ui.screens.login
 
-import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,14 +8,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.meditrack3.data.repository.MedicationRepository
 import com.example.meditrack3.navigation.Screen
 import com.example.meditrack3.ui.viewmodels.LoginState
 import com.example.meditrack3.ui.viewmodels.LoginViewModel
@@ -24,7 +21,6 @@ import com.example.meditrack3.ui.viewmodels.LoginViewModel
 @Composable
 fun LoginScreen(navController: NavHostController) {
 
-    // ✅ AndroidViewModel is automatically provided
     val viewModel: LoginViewModel = viewModel()
 
     var email by remember { mutableStateOf("") }

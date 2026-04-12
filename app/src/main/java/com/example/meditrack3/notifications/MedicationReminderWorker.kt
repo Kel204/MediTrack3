@@ -24,10 +24,10 @@ class MedicationReminderWorker(
         val dosage =
             inputData.getString("dosage") ?: ""
 
-        // 👉 Intent to open app + navigate
+        //  Intent to open app + navigate
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             putExtra("navigate_to", "home")
-            putExtra("medication_name", medicationName) // optional
+            putExtra("medication_name", medicationName)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 

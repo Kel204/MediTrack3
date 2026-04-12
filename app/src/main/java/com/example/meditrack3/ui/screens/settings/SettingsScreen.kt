@@ -10,7 +10,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
@@ -21,13 +20,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,7 +40,7 @@ import java.io.ByteArrayOutputStream
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    themeViewModel: ThemeViewModel = viewModel() // 🔥 auto provided
+    themeViewModel: ThemeViewModel = viewModel()
 ) {
 
     val context = LocalContext.current
@@ -78,7 +75,7 @@ fun SettingsScreen(
             selectedImageUri = it
         }
 
-    // LOAD DATA + APPLY THEME
+    // Loading Data
     LaunchedEffect(Unit) {
         db.collection("users").document(user.uid).get()
             .addOnSuccessListener {
@@ -113,6 +110,7 @@ fun SettingsScreen(
                     BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                 }
 
+                // Display selected or saved image
                 when {
                     selectedImageUri != null -> {
                         val bytes = context.contentResolver.openInputStream(selectedImageUri!!)?.readBytes()
@@ -142,6 +140,7 @@ fun SettingsScreen(
                     }
                 }
 
+                // Edit icon overlay
                 Box(
                     Modifier.size(36.dp).clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary),
@@ -154,7 +153,7 @@ fun SettingsScreen(
 
         Text("Tap to change photo", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
 
-        // ACCOUNT
+        // Account Section
         SettingsCard("Account") {
             SettingsTextField("Name", name) { name = it }
             SettingsTextField("Email", email) { email = it }
@@ -162,14 +161,14 @@ fun SettingsScreen(
             SettingsTextField("Current Password", currentPassword, true) { currentPassword = it }
         }
 
-        // MEDICAL
+        // Medical Profile
         SettingsCard("Medical Profile") {
             SettingsTextField("Allergies", allergies) { allergies = it }
             SettingsTextField("Conditions", conditions) { conditions = it }
             SettingsTextField("Emergency Contact", emergencyContact) { emergencyContact = it }
         }
 
-        // 🔥 APP SETTINGS (FIXED DARK MODE)
+        // App Settings
         SettingsCard("App Settings") {
             SettingsToggle("Notifications", notificationsEnabled) { notificationsEnabled = it }
 
@@ -182,7 +181,7 @@ fun SettingsScreen(
             }
         }
 
-        // SAVE
+        // Save Button
         Button(
             onClick = {
                 if (currentPassword.isBlank()) {
@@ -234,7 +233,7 @@ fun SettingsScreen(
             else Text("Save Changes")
         }
 
-        // DANGER ZONE
+        // Danger Zone Card
         SettingsCard("Danger Zone", MaterialTheme.colorScheme.errorContainer) {
 
             Button(
@@ -262,7 +261,7 @@ fun SettingsScreen(
         }
     }
 
-    // DELETE DIALOG
+    // Delete Section
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },

@@ -36,13 +36,13 @@ class MedicationRepository(application: Application) {
 
     suspend fun insertMedication(medication: Medication) {
 
-        // 1️⃣ Insert locally first
+        // Insert locally first
         val generatedId = dao.insertMedication(medication).toInt()
 
-        // 2️⃣ Copy with real ID
+        // Copy with real ID
         val medicationWithId = medication.copy(id = generatedId)
 
-        // 3️⃣ Sync to Firebase
+        // Sync to Firebase
         syncToFirebase(medicationWithId)
     }
 

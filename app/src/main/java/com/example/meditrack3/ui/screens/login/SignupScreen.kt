@@ -19,7 +19,6 @@ import com.example.meditrack3.ui.viewmodels.SignupState
 @Composable
 fun SignupScreen(navController: NavHostController) {
 
-    // ✅ AndroidViewModel automatically provided
     val viewModel: LoginViewModel = viewModel()
 
     var email by remember { mutableStateOf("") }

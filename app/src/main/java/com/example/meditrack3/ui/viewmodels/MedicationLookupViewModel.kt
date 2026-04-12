@@ -13,10 +13,10 @@ class MedicationLookupViewModel : ViewModel() {
     private val _results = MutableStateFlow<List<LookupResult>>(emptyList())
     val results: StateFlow<List<LookupResult>> = _results
 
-    // ✅ FIXED TYPE HERE
+    // FIXED TYPE HERE
     private var allMedicines: List<MedicationDto> = emptyList()
 
-    // ✅ Load data once from GitHub
+    // Load data once from GitHub
     fun loadMedicines() {
         viewModelScope.launch {
             try {
@@ -33,7 +33,7 @@ class MedicationLookupViewModel : ViewModel() {
         }
     }
 
-    // ✅ Search locally (FAST)
+    // Search locally (FAST)
     fun search(query: String) {
         val cleaned = query.trim()
 

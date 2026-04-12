@@ -21,7 +21,7 @@ interface MedicationDao {
     @Query("DELETE FROM medications")
     suspend fun clearAll()
 
-    /* ───────── UI (Flow-based) ───────── */
+
 
     @Query("SELECT * FROM medications ORDER BY name ASC")
     fun getAllMedications(): Flow<List<Medication>>

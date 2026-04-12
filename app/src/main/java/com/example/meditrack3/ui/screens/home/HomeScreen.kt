@@ -55,7 +55,7 @@ fun HomeScreen(navController: NavController) {
         }
         .sortedBy { it.second }
 
-    // 🔹 UI-only separation (no logic change)
+
     val pendingDoses = todaysDoses.filter {
         viewModel.getDoseStatus(it.third) == null
     }
